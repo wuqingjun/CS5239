@@ -1,7 +1,0 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-    <file>hw02a.vert</file>
-    <file>hw02a.frag</file>
-    <file>hw02b.frag</file>
-</qresource>
-</RCC>

@@ -23,9 +23,12 @@ measures the true frame rate.
 
 #### Program Use Instructions
 
+Added a FPS label to the UI of ex4; and also played around with different shaders; a lamp is also added
+into the objects. FPS is computed based on this link:  https://forum.qt.io/topic/5964/calcultate-fps
+
 
 Use the Quit button or the window's exit button to end the program.
 
-**Time To Complete Assignment:** ~ hours
+**Time To Complete Assignment:** 4 hours
 
 Based on provided class Example 4.
