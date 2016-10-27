@@ -36,4 +36,7 @@ make sure you can explain every line of code.
 
 **Time To Complete Assignment:** 12 hours
 
-I read through a online WebGL Tutorial (http://learningwebgl.com/) and use the sample code as a template to draw my lamp. 
+I read through a online WebGL Tutorial (http://learningwebgl.com/) and use the sample code as a template to draw my lamp. For lighting, two lights are taken account: directional light and ambient light. Light direction and color are passed from the UI to uniform variables.
+
+The Normal matrix is calculated based on this formula:  normalMatrix = transpose(inverse(modelViewMatrix)). In this home work, a revised formula is used, based on Shy's comment in this post: http://learningwebgl.com/blog/?p=3322&cpage=1#comment-18985. 
+

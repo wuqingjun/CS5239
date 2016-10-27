@@ -16,6 +16,7 @@
     uniform sampler2D uSampler;
 
     void main(void) {
+        // applying texture. Using 2D sampler to get the color and then combine with lighting.
         vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
     
          // applying lighting to the Fragment Color. 
@@ -148,7 +149,7 @@
         // The attributes and uniform variables have the same story. 
 
         // Here it shows how the javascript attribute associates with shader.
-        //  cubeVertexPositionBuffer(in javascript)  - shaderProgram.vertexPositionAttribute(in javascript) - aVertexPosition in shader.
+        //  coverVertexPositionBuffer(in javascript)  - shaderProgram.vertexPositionAttribute(in javascript) - aVertexPosition in shader.
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
@@ -202,24 +203,13 @@
     // Projection Matrix, moving the camera, converting 3D objects to 2D for drawying on the display.
     var pMatrix = mat4.create();
 
-    function mvPushMatrix() {
-        var copy = mat4.create();
-        mat4.set(mvMatrix, copy);
-        mvMatrixStack.push(copy);
-    }
-
-    function mvPopMatrix() {
-        if (mvMatrixStack.length == 0) {
-            throw "Invalid popMatrix!";
-        }
-        mvMatrix = mvMatrixStack.pop();
-    }
-
     // passing uniform matrix to the webgl and shader program from user space - javascript.
     function setMatrixUniforms() {
         gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
         gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 
+        // The Normal matrix is calculated based on this formula:  normalMatrix = transpose(inverse(modelViewMatrix)). 
+        // In this home work, a revised formula is used, based on Shy's comment in this post: http://learningwebgl.com/blog/?p=3322&cpage=1#comment-18985. 
         var normalMatrix = mat3.create();
         mat4.toInverseMat3(mvMatrix, normalMatrix);
         mat3.transpose(normalMatrix);
@@ -281,14 +271,14 @@
         }
     }
 
-    var cubeVertexPositionBuffer;
-    var cubeVertexNormalBuffer;
-    var cubeVertexTextureCoordBuffer;
-    var cubeVertexIndexBuffer;
+    var coverVertexPositionBuffer;
+    var coverVertexNormalBuffer;
+    var coverVertexTextureCoordBuffer;
+    var coverVertexIndexBuffer;
 
     function initBuffers() {
-        cubeVertexPositionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
+        coverVertexPositionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, coverVertexPositionBuffer);
         var angle = 60, r = 0.3, h = 0.8, R = r + h * Tan(angle);
         var vertices = [], vertexNormals = [], textureCoords = [];
         for (var j = 0; j < 360; j += 1) {
@@ -307,24 +297,24 @@
         }
 
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-        cubeVertexPositionBuffer.itemSize = 3;
-        cubeVertexPositionBuffer.numItems = 2 * 360;
+        coverVertexPositionBuffer.itemSize = 3;
+        coverVertexPositionBuffer.numItems = 2 * 360;
 
-        cubeVertexNormalBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexNormalBuffer);
+        coverVertexNormalBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, coverVertexNormalBuffer);
 
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
-        cubeVertexNormalBuffer.itemSize = 3;
-        cubeVertexNormalBuffer.numItems = 2 * 360;
+        coverVertexNormalBuffer.itemSize = 3;
+        coverVertexNormalBuffer.numItems = 2 * 360;
 
-        cubeVertexTextureCoordBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer);
+        coverVertexTextureCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, coverVertexTextureCoordBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
-        cubeVertexTextureCoordBuffer.itemSize = 2;
-        cubeVertexTextureCoordBuffer.numItems = 2 * 360;
+        coverVertexTextureCoordBuffer.itemSize = 2;
+        coverVertexTextureCoordBuffer.numItems = 2 * 360;
 
-        cubeVertexIndexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
+        coverVertexIndexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, coverVertexIndexBuffer);
         var cubeVertexIndices = [];
 
         for (var i = 0; i < 360 * 2; ++i) {
@@ -334,8 +324,8 @@
         }
 
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
-        cubeVertexIndexBuffer.itemSize = 1;
-        cubeVertexIndexBuffer.numItems = 3 * 360 * 2;
+        coverVertexIndexBuffer.itemSize = 1;
+        coverVertexIndexBuffer.numItems = 3 * 360 * 2;
     }
 
 
@@ -356,14 +346,14 @@
         mat4.rotate(mvMatrix, degToRad(xRot), [1, 0, 0]);
         mat4.rotate(mvMatrix, degToRad(yRot), [0, 1, 0]);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, coverVertexPositionBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, coverVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexNormalBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, cubeVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, coverVertexNormalBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, coverVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer);
-        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, coverVertexTextureCoordBuffer);
+        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, coverVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, crateTexture);
@@ -396,10 +386,10 @@
             );
         }
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, coverVertexIndexBuffer);
         //
         setMatrixUniforms();
-        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, coverVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
     }
 
 
@@ -418,6 +408,7 @@
 
 
     function tick() {
+        //Enabling the browser to determin the optimal FPS for animation.
         requestAnimFrame(tick);
         handleKeys();
         drawScene();
