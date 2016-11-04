@@ -1,11 +1,3 @@
-// This is a .h file for the model: cube
-
-// Positions: 8
-// Texels: 14
-// Normals: 6
-// Faces: 12
-// Vertices: 36
-// Materials: 6
 
 const int cubeVertices;
 const float cubePositions[108];

@@ -1,10 +1,3 @@
-//
-//  MainViewController.m
-//  GLTransformations
-//
-//  Created by RRC on 9/2/13.
-//  Copyright (c) 2013 Ricardo Rendon Cepeda. All rights reserved.
-//
 
 #import "MainViewController.h"
 #import "Model.h"
@@ -37,7 +30,7 @@
     glEnable(GL_DEPTH_TEST);
     
     // Load model
-    self.model = [[Model alloc] initWithModel:M_STARSHIP];
+    self.model = [[Model alloc] initWithModel:M_LAMP];
     
     // Initialize transformations
     self.transformations = [[Transformations alloc] initWithDepth:5.0f Scale:2.0f Translation:GLKVector2Make(0.0f, 0.0f) Rotation:GLKVector3Make(0.0f, 0.0f, 0.0f)];

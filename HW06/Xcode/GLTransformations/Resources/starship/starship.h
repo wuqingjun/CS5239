@@ -1,11 +1,4 @@
-// This is a .h file for the model: starship
 
-// Positions: 15
-// Texels: 60
-// Normals: 22
-// Faces: 22
-// Vertices: 66
-// Materials: 3
 
 const int starshipVertices;
 const float starshipPositions[198];
