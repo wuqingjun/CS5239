@@ -56,9 +56,18 @@ people's heads.
 #### Program Use Instructions
 Gestures are supported in the solustion, so you can use your finger(s) to move around the object, scale or rotate it. 
 
-I am doing this homework based on an online instruction and its sample code:https://www.raywenderlich.com/48299/export-blender-models-opengl-es-part-3. My contribution to this: 
+I am doing this homework based on an online instruction and its sample code:https://www.raywenderlich.com/48299/export-blender-models-opengl-es-part-3.  
+
+
+My contribution to this: 
+
+
 1. added an object - a lamp cover to it; I wrote some code in C++ to generate the vertices coordinate, texture coordinates and also compute the normals;
+
+
 2. did some research and implemented gestures - using code of another online sample;
+
+
 3. the original sample code is using Phone lighting mode, but when I am testing with the lamp cover, the light doesn't like working, so I fixed(improved) it. 
 
 **Time To Complete Assignment:** 12 hours
