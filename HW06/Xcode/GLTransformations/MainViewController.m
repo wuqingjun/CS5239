@@ -32,7 +32,7 @@
     glkView.context = context;
     
     // OpenGL ES Settings
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
    // glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     

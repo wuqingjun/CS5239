@@ -26,7 +26,7 @@ static const char* PhongFSH = STRINGIFY
     highp vec3 is = vec3(1.0);
     
     // Vectors
-    highp vec3 L = normalize(vec3(1.0, 1.0, 1.0));
+    highp vec3 L = normalize(vec3(1, 1, 1));
     highp vec3 N = normalize(vNormal);
     highp vec3 V = normalize(vec3(0.0, 0.0, 1.0));
     highp vec3 R = reflect(L, N);
@@ -43,10 +43,11 @@ static const char* PhongFSH = STRINGIFY
     
     // Surface
     highp vec3 surface;
-    if(decal.a > 0.0)
-        surface = decal.rgb;
-    else
-        surface = Ip;
+     surface = decal.rgb * Ip;
+    //if(decal.a > 0.0)
+     //   surface = decal.rgb;
+    //else
+     //   surface = Ip;
     
     gl_FragColor = vec4(surface, 1.0);
  }

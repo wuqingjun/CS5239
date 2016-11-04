@@ -127,7 +127,7 @@
     {
         // Materials
         glUniform3f(self.shader.uDiffuse, starshipDiffuses[i][0], starshipDiffuses[i][1], starshipDiffuses[i][2]);
-        glUniform3f(self.shader.uSpecular, starshipSpeculars[i][0], starshipSpeculars[i][1], starshipSpeculars[i][2]);
+       glUniform3f(self.shader.uSpecular, starshipSpeculars[i][0], starshipSpeculars[i][1], starshipSpeculars[i][2]);
         
         // Vertices
         glDrawArrays(GL_TRIANGLES, starshipFirsts[i], starshipCounts[i]);
@@ -141,10 +141,10 @@
     glVertexAttribPointer(self.shader.aTexel, 2, GL_FLOAT, GL_FALSE, 0, lampTextureCoordinates);
     glVertexAttribPointer(self.shader.aNormal, 3, GL_FLOAT, GL_FALSE, 0, lampNormals);
     
-    glUniform3f(self.shader.uDiffuse, starshipDiffuses[0][0], starshipDiffuses[0][1], starshipDiffuses[0][2]);
-    glUniform3f(self.shader.uSpecular, starshipSpeculars[0][0], starshipSpeculars[0][1], starshipSpeculars[0][2]);
+    glUniform3f(self.shader.uDiffuse, 1, 1, 1);
+    glUniform3f(self.shader.uSpecular, 0.5, 0.5, 0.5);
     
-    glDrawArrays(GL_TRIANGLES, 0, 360 * 12);
+    glDrawArrays(GL_TRIANGLES, 0, 360 * 6);
 }
 
 - (void)setMatricesProjection:(GLKMatrix4)p ModelView:(GLKMatrix4)mv Normal:(GLKMatrix3)n

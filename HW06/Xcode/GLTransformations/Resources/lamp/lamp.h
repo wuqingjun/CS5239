@@ -8,7 +8,7 @@
 
 
 const int lampVertexCount;
-const float lampPositions[36 * 360];
-const float lampTextureCoordinates[24 * 360];
-const float lampNormals[36 * 360];
+const float lampPositions[18 * 360];
+const float lampTextureCoordinates[12 * 360];
+const float lampNormals[18 * 360];
 
