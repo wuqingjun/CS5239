@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>blackwhite.frag</file>
+        <file>20090602.png</file>
+    </qresource>
+</RCC>
