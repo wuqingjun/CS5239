@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ex17.vert</file>
+        <file>ex17.frag</file>
+        <file>bunny.obj</file>
+        <file>9.bmp</file>
+    </qresource>
+</RCC>
