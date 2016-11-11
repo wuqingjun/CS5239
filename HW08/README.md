@@ -23,8 +23,6 @@ texture(s) for;
 
 4) Time it took you to complete the assignment.
 
-4) Time it took you to complete the assignment.
-
 
 #### Program Use Instructions
 
