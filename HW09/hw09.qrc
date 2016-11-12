@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>ex19a.vert</file>
+    <file>ex19b.vert</file>
+    <file>ex19b.frag</file>
+    <file>particle.png</file>
+</qresource>
+</RCC>
