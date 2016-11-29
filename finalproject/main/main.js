@@ -83,7 +83,66 @@ window.onload = function() {
 		particleSystem = new THREE.ParticleSystem( systemGeometry, systemMaterial );
 		particleSystem.position.y = -height/2;
 
-		scene.add( particleSystem );
+		scene.add(particleSystem);
+
+
+	    // adding Elsa
+
+		var head = document.getElementsByTagName('head')[0];
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = 'OBJLoader.js';
+		head.appendChild(script);
+
+
+		var manager = new THREE.LoadingManager();
+		manager.onProgress = function (item, loaded, total) {
+
+		    console.log(item, loaded, total);
+
+		};
+
+		texture = new THREE.Texture();
+
+		var onProgress = function (xhr) {
+		    if (xhr.lengthComputable) {
+		        var percentComplete = xhr.loaded / xhr.total * 100;
+		        console.log(Math.round(percentComplete, 2) + '% downloaded');
+		    }
+		};
+
+		var onError = function (xhr) {
+		};
+
+
+		var loader = new THREE.ImageLoader(manager);
+		loader.load('tex/ObjectSurface_Color.png', function (image) {
+
+		    texture.image = image;
+		    texture.needsUpdate = true;
+
+		});
+
+	    // model
+
+		var loader = new THREE.OBJLoader(manager);
+		loader.load('Elsa2.obj', function (object) {
+
+		    object.traverse(function (child) {
+
+		        if (child instanceof THREE.Mesh) {
+
+		            child.material.map = texture;
+
+		        }
+
+		    });
+
+		    object.position.y = -95;
+		    scene.add(object);
+
+		}, onProgress, onError);
+
 
 		clock = new THREE.Clock();
 
