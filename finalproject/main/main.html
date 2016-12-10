@@ -310,9 +310,12 @@
                 camera,
                 cameraRadius = 50.0,
                 cameraTarget,
-                cameraX = 0,
-                cameraY = 0,
-                cameraZ = cameraRadius,
+                cameraX = 35,
+                cameraY = 25,
+                cameraZ = 45,
+                cameraTargetX = 0,
+                cameraTargetY = 0,
+                cameraTargetZ = 0,
                 particleSystem,
                 particleSystemHeight = 100.0,
                 clock,
@@ -326,10 +329,51 @@
                 uniforms;
             var perWeight = 10.0;
             var torusGeo, torus;
+            var olafMeshes = [];
+            var phongMaterial = new THREE.MeshPhongMaterial({ ambient: 0x555555, color: 0x555555, specular: 0xffffff, shininess: 50, shading: THREE.SmoothShading });
+            var basicMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 1, wireframe: true });
 
             init();
             animate();
 
+            var rotObjectMatrix;
+            function rotateAroundObjectAxis(object, axis, radians) {
+                rotObjectMatrix = new THREE.Matrix4();
+                rotObjectMatrix.makeRotationAxis(axis.normalize(), radians);
+
+                // old code for Three.JS pre r54:
+                // object.matrix.multiplySelf(rotObjectMatrix);      // post-multiply
+                // new code for Three.JS r55+:
+                object.matrix.multiply(rotObjectMatrix);
+
+                // old code for Three.js pre r49:
+                // object.rotation.getRotationFromMatrix(object.matrix, object.scale);
+                // old code for Three.js r50-r58:
+                // object.rotation.setEulerFromRotationMatrix(object.matrix);
+                // new code for Three.js r59+:
+                object.rotation.setFromRotationMatrix(object.matrix);
+            }
+
+            var rotWorldMatrix;
+            // Rotate an object around an arbitrary axis in world space       
+            function rotateAroundWorldAxis(object, axis, radians) {
+                rotWorldMatrix = new THREE.Matrix4();
+                rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
+
+                // old code for Three.JS pre r54:
+                //  rotWorldMatrix.multiply(object.matrix);
+                // new code for Three.JS r55+:
+                rotWorldMatrix.multiply(object.matrix);                // pre-multiply
+
+                object.matrix = rotWorldMatrix;
+
+                // old code for Three.js pre r49:
+                // object.rotation.getRotationFromMatrix(object.matrix, object.scale);
+                // old code for Three.js pre r59:
+                // object.rotation.setEulerFromRotationMatrix(object.matrix);
+                // code for r59+:
+                object.rotation.setFromRotationMatrix(object.matrix);
+            }
 
             function init() {
 
@@ -341,10 +385,10 @@
                 scene = new THREE.Scene();
 
                 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-                camera.position.x = 35;
-                camera.position.y = 108;
-                camera.position.z = -114;
-                cameraTarget = new THREE.Vector3(0, 0, 0);
+                camera.position.x = cameraX;
+                camera.position.y = cameraY;
+                camera.position.z = cameraZ;
+                cameraTarget = new THREE.Vector3(cameraTargetX, cameraTargetY, cameraTargetZ);
 
                 var ambient = new THREE.AmbientLight(0x101030);
                 scene.add(ambient);
@@ -370,8 +414,11 @@
                         speedH: 1.0,
                         speedV: 1.0,
                         cameraX: 35,
-                        cameraY: 108,
-                        cameraZ: -114
+                        cameraY: 25,
+                        cameraZ: 45,
+                        cameraTargetX: 0,
+                        cameraTargetY: 0,
+                        cameraTargetZ: 0
                     },
                     systemGeometry = new THREE.Geometry(),
                     systemMaterial = new THREE.ShaderMaterial({
@@ -420,7 +467,6 @@
                 };
 
                 textureElsa = new THREE.Texture();
-              //  textureOlaf = new THREE.Texture();
 
                 var onProgress = function (xhr) {
                     if (xhr.lengthComputable) {
@@ -463,7 +509,7 @@
   
                 // adding olaf:
                 var img = new Image;
-                img.src = "http://crossorigin.me/http://i.imgur.com/rmPw7Lr.jpg";
+                img.src = "rmPw7Lr.jpg";
                 // This makes it work
                 img.crossOrigin = "Anonymous";
                 THREE.ImageUtils.crossOrigin = '';
@@ -485,36 +531,24 @@
                 shaderMaterial.uniforms.tShine.wrapS = THREE.Repeat;
                 shaderMaterial.uniforms.tShine.wrapT = THREE.Repeat;  
 
-
-                // torus
-
-                //torus = new THREE.Mesh(torusGeo, shaderMaterial);
-                //torus.doubleSided = true;
-                //torus.position.set(0, 0, 0);
-                //torus.rotateX(Math.PI / 2);
-                //torus.rotateZ(Math.PI);
-                //torus.scale.set(20, 20, 20);
-                //scene.add(torus);
-
-
                 var loader2 = new THREE.ObjectLoader();
                 loader2.load("olaf.json", function (obj) {
-                    //obj.scale.set(15,15,15);
                     obj.traverse(function (child) {
                         if (child instanceof THREE.Mesh) {
                             child.castShadow = true;
                             child.receiveShadow = true;
                         }
                         if (child.geometry !== undefined) {
-                            var t = new THREE.Mesh(child.geometry, shaderMaterial);
+                            var t = new THREE.Mesh(child.geometry, obj.material);
                             t.doubleSided = true;
-                            t.position.set(0, 0, 0);
-                            t.rotateX(Math.PI / 2);
-                            t.rotateZ(Math.PI);
                             t.scale.set(10, 10, 10);
+                            olafMeshes.push(t);//shaderMaterial);
                             scene.add(t);
                         }
                     });
+                    // obj.rotation.x = Math.PI;
+                    //obj.material = shaderMaterial;
+                    //scene.add(obj);
                 }, onProgress, onError);
 
 
@@ -535,11 +569,9 @@
                     cameraX = parameters.cameraX;
                     cameraY = parameters.cameraY;
                     cameraZ = parameters.cameraZ;
-
-                    //camera.position.x = parameters.cameraX;
-                    //camera.position.y = parameters.cameraY;
-                    //camera.position.z = parameters.cameraZ;
-                    //renderer.render(scene, camera);
+                    cameraTargetX = parameters.cameraTargetX;
+                    cameraTargetY = parameters.cameraTargetY;
+                    cameraTargetZ = parameters.cameraTargetZ;
                 }
 
                 controls = new dat.GUI();
@@ -557,6 +589,10 @@
                 controls.add(parameters, 'cameraX', -200, 200).onChange(onParametersUpdate);
                 controls.add(parameters, 'cameraY', -200, 200).onChange(onParametersUpdate);
                 controls.add(parameters, 'cameraZ', -200, 200).onChange(onParametersUpdate);
+                controls.add(parameters, 'cameraTargetX', -200, 200).onChange(onParametersUpdate);
+                controls.add(parameters, 'cameraTargetY', -200, 200).onChange(onParametersUpdate);
+                controls.add(parameters, 'cameraTargetZ', -200, 200).onChange(onParametersUpdate);
+
 
                 //document.addEventListener('mousemove', function (e) {
                 //    var mouseX = e.clientX,
@@ -570,8 +606,8 @@
                 //       cameraY = cameraRadius * (mouseY - halfHeight) / halfHeight;
                 //}, false);
 
-                //document.addEventListener('mousewheel', onMouseWheel, false);
-                //document.addEventListener('DOMMouseScroll', onMouseWheel, false);
+                document.addEventListener('mousewheel', onMouseWheel, false);
+                document.addEventListener('DOMMouseScroll', onMouseWheel, false);
 
             }
 
@@ -609,8 +645,33 @@
                     elapsedTime = clock.getElapsedTime();
 
                 particleSystem.material.uniforms.elapsedTime.value = elapsedTime * 10;
+             
+                var d = new Date();
+                var n = d.getTime();
+
+                var tempMaterial =  n % 10000 < 2000 ? phongMaterial  : (n % 10000 < 5000 ? basicMaterial : shaderMaterial);
+
+                for (var i = 0; i < olafMeshes.length; ++i) {
+                    if (olafMeshes[i] != undefined) {
+                        olafMeshes[i].material = tempMaterial;
+                        olafMeshes[i].rotation.x += 0.01;
+                        olafMeshes[i].rotation.y += 0.01;
+                        olafMeshes[i].rotation.z += 0.01;
+                        olafMeshes[i].updateMatrixWorld(true);
+                    }
+                }
+                //if (olafMesh !== undefined) {
+                //    olafMesh.rotation.x += 0.01;
+                //    olafMesh.rotation.y += 0.01;
+                //    olafMesh.rotation.z += 0.01;
+                //    olafMesh.updateMatrixWorld(true);
+                //}
 
                 camera.position.set(cameraX, cameraY, cameraZ);
+                cameraTarget.x = cameraTargetX;
+                cameraTarget.y = cameraTargetY;
+                cameraTarget.z = cameraTargetZ;
+
                 camera.lookAt(cameraTarget);
 
                 renderer.clear();
