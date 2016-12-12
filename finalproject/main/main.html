@@ -297,9 +297,50 @@
                 vReflect = normalize( reflect( normalize( newPosition.xyz - cameraPosition ), nWorld ) );
                 gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
             }
+        </script>
 
+        <script id="fragShader" type="shader-code">
+            uniform vec2 res;//The width and height of our screen
+            uniform sampler2D bufferTexture;//Our input texture
+            uniform vec3 smokeSource;//The x,y are the posiiton. The z is the power/density
+            uniform float time;
+            void main() {
+            vec2 pixel = gl_FragCoord.xy / res.xy;
+            //Get the distance of the current pixel from the smoke source
+            float dist = distance(smokeSource.xyz,gl_FragCoord.xyz);
+            //Get the color of the current pixel
+            gl_FragColor = texture2D( bufferTexture, pixel );
 
+            //Generate smoke when mouse is pressed
+            gl_FragColor.rgb += smokeSource.z * max(15.0-dist,0.0);
 
+            //Generate fixed smoke (this is the little point moving around in the center)
+            vec3 smokePoint = vec3(res.x/2.0 + 100.0*sin(time),res.y/2.0+cos(time*3.5)*40.0, sin(time) * cos(time) * 10.0);
+            //vec3 smokePoint = vec3(res.x/2.0 + 1.0 * exp(0.1 * time),res.y/2.0 + 0.2 * cos(0.1 * time), 0.1 * time);
+            dist = distance(smokePoint,gl_FragCoord.xyz);
+            gl_FragColor.rgb += 0.01 * max(15.0-dist,0.0);
+
+            //Smoke diffuse
+            float xPixel = 1.0/res.x;//The size of a single pixel
+            float yPixel = 1.0/res.y;
+            vec4 rightColor = texture2D(bufferTexture,vec2(pixel.x+xPixel,pixel.y));
+            vec4 leftColor = texture2D(bufferTexture,vec2(pixel.x-xPixel,pixel.y));
+            vec4 upColor = texture2D(bufferTexture,vec2(pixel.x,pixel.y+yPixel));
+            vec4 downColor = texture2D(bufferTexture,vec2(pixel.x,pixel.y-yPixel));
+            //Handle the bottom boundary
+            if(pixel.y <= yPixel){
+            downColor.rgb = vec3(0.0);
+            }
+            //Diffuse equation
+            float factor = 8.0 * 0.016 * (leftColor.r + rightColor.r + downColor.r * 3.0 + upColor.r - 6.0 * gl_FragColor.r);
+
+            //Account for low precision of texels
+            float minimum = 0.003;
+            if(factor >= -minimum && factor < 0.0) factor = -minimum;
+
+            gl_FragColor.rgb += factor;
+
+            }
         </script>
 
 
@@ -332,6 +373,15 @@
             var olafMeshes = [];
             var phongMaterial = new THREE.MeshPhongMaterial({ ambient: 0x555555, color: 0x555555, specular: 0xffffff, shininess: 50, shading: THREE.SmoothShading });
             var basicMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 1, wireframe: true });
+            var bufferScene;
+            var textureA;
+            var textureB;
+            var bufferMaterial;
+            var plane;
+            var bufferObject;
+            var finalMaterial;
+            var quad;
+
 
             init();
             animate();
@@ -374,6 +424,42 @@
                 // code for r59+:
                 object.rotation.setFromRotationMatrix(object.matrix);
             }
+
+
+            function buffer_texture_setup(){
+                //Create buffer scene
+                bufferScene = new THREE.Scene();
+                //Create 2 buffer textures
+                textureA = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter});
+                textureB = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter} );
+                //Pass textureA to shader
+                bufferMaterial = new THREE.ShaderMaterial( {
+                    uniforms: {
+                        bufferTexture: { type: "t", value: textureA },
+                        res : {type: 'v2',value:new THREE.Vector2(window.innerWidth,window.innerHeight)},//Keeps the resolution
+                        smokeSource: {type:"v3",value:new THREE.Vector3(200,200,200)},
+                        time: {type:"f",value:Math.random()*Math.PI*2+Math.PI}
+                    },
+                    fragmentShader: document.getElementById( 'fragShader' ).innerHTML
+                } );
+			
+                plane = new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight);
+
+                bufferObject = new THREE.Mesh( plane, bufferMaterial );
+                bufferScene.add(bufferObject);
+
+                //Draw textureB to screen 
+                finalMaterial = new THREE.MeshBasicMaterial({ map: textureB });
+                //finalMaterial.transparent = true;
+                quad = new THREE.Mesh(plane, finalMaterial);
+                quad.position.z = -300;
+                quad.position.x = -200;
+                quad.position.y = -200;
+                //quad.rotation.x = Math.PI / 2;
+
+                scene.add(quad);
+            }
+
 
             function init() {
 
@@ -522,7 +608,6 @@
                         weight: { type: "f", value: 0 }
                     },
 
-
                     vertexShader: document.getElementById('vertexShader').textContent,
                     fragmentShader: document.getElementById('fragmentShader').textContent
 
@@ -541,7 +626,10 @@
                         if (child.geometry !== undefined) {
                             var t = new THREE.Mesh(child.geometry, obj.material);
                             t.doubleSided = true;
-                            t.scale.set(10, 10, 10);
+                            t.scale.set(1, 1, 1);
+                            t.position.x = 30;
+                            t.position.y = 20;
+                            t.position.z = 100;
                             olafMeshes.push(t);//shaderMaterial);
                             scene.add(t);
                         }
@@ -609,6 +697,10 @@
                 document.addEventListener('mousewheel', onMouseWheel, false);
                 document.addEventListener('DOMMouseScroll', onMouseWheel, false);
 
+                //set up smoke
+                //scene_setup();
+
+                buffer_texture_setup();
             }
 
             function onMouseWheel(e) {
@@ -654,6 +746,8 @@
                 for (var i = 0; i < olafMeshes.length; ++i) {
                     if (olafMeshes[i] != undefined) {
                         olafMeshes[i].material = tempMaterial;
+                        //olafMeshes[i].position.x += 10 * Math.sin(delta);
+                        //olafMeshes[i].position.y += 10 * Math.cos(delta);
                         olafMeshes[i].rotation.x += 0.01;
                         olafMeshes[i].rotation.y += 0.01;
                         olafMeshes[i].rotation.z += 0.01;
@@ -674,7 +768,21 @@
 
                 camera.lookAt(cameraTarget);
 
-                renderer.clear();
+                //Draw to textureB
+                renderer.render(bufferScene, camera, textureB, true);
+
+                //Swap textureA and B
+                var t = textureA;
+                textureA = textureB;
+                textureB = t;
+                quad.material.map = textureB;
+                bufferMaterial.uniforms.bufferTexture.value = textureA;
+
+                //Update time
+                bufferMaterial.uniforms.time.value += 0.01;
+
+
+                //renderer.clear();
                 render();
                 renderer.render(scene, camera);
 
