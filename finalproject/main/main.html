@@ -748,18 +748,12 @@
                         olafMeshes[i].material = tempMaterial;
                         //olafMeshes[i].position.x += 10 * Math.sin(delta);
                         //olafMeshes[i].position.y += 10 * Math.cos(delta);
-                        olafMeshes[i].rotation.x += 0.01;
-                        olafMeshes[i].rotation.y += 0.01;
-                        olafMeshes[i].rotation.z += 0.01;
+                        olafMeshes[i].rotation.x += 0.005;
+                        olafMeshes[i].rotation.y += 0.005;
+                        olafMeshes[i].rotation.z += 0.005;
                         olafMeshes[i].updateMatrixWorld(true);
                     }
                 }
-                //if (olafMesh !== undefined) {
-                //    olafMesh.rotation.x += 0.01;
-                //    olafMesh.rotation.y += 0.01;
-                //    olafMesh.rotation.z += 0.01;
-                //    olafMesh.updateMatrixWorld(true);
-                //}
 
                 camera.position.set(cameraX, cameraY, cameraZ);
                 cameraTarget.x = cameraTargetX;
