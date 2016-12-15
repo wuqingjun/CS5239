@@ -386,46 +386,6 @@
             init();
             animate();
 
-            var rotObjectMatrix;
-            function rotateAroundObjectAxis(object, axis, radians) {
-                rotObjectMatrix = new THREE.Matrix4();
-                rotObjectMatrix.makeRotationAxis(axis.normalize(), radians);
-
-                // old code for Three.JS pre r54:
-                // object.matrix.multiplySelf(rotObjectMatrix);      // post-multiply
-                // new code for Three.JS r55+:
-                object.matrix.multiply(rotObjectMatrix);
-
-                // old code for Three.js pre r49:
-                // object.rotation.getRotationFromMatrix(object.matrix, object.scale);
-                // old code for Three.js r50-r58:
-                // object.rotation.setEulerFromRotationMatrix(object.matrix);
-                // new code for Three.js r59+:
-                object.rotation.setFromRotationMatrix(object.matrix);
-            }
-
-            var rotWorldMatrix;
-            // Rotate an object around an arbitrary axis in world space       
-            function rotateAroundWorldAxis(object, axis, radians) {
-                rotWorldMatrix = new THREE.Matrix4();
-                rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
-
-                // old code for Three.JS pre r54:
-                //  rotWorldMatrix.multiply(object.matrix);
-                // new code for Three.JS r55+:
-                rotWorldMatrix.multiply(object.matrix);                // pre-multiply
-
-                object.matrix = rotWorldMatrix;
-
-                // old code for Three.js pre r49:
-                // object.rotation.getRotationFromMatrix(object.matrix, object.scale);
-                // old code for Three.js pre r59:
-                // object.rotation.setEulerFromRotationMatrix(object.matrix);
-                // code for r59+:
-                object.rotation.setFromRotationMatrix(object.matrix);
-            }
-
-
             function buffer_texture_setup(){
                 //Create buffer scene
                 bufferScene = new THREE.Scene();
@@ -450,12 +410,10 @@
 
                 //Draw textureB to screen 
                 finalMaterial = new THREE.MeshBasicMaterial({ map: textureB });
-                //finalMaterial.transparent = true;
                 quad = new THREE.Mesh(plane, finalMaterial);
                 quad.position.z = -300;
                 quad.position.x = -200;
                 quad.position.y = -200;
-                //quad.rotation.x = Math.PI / 2;
 
                 scene.add(quad);
             }
@@ -547,9 +505,7 @@
                 // adding
                 var manager = new THREE.LoadingManager();
                 manager.onProgress = function (item, loaded, total) {
-
                     console.log(item, loaded, total);
-
                 };
 
                 textureElsa = new THREE.Texture();
@@ -630,13 +586,10 @@
                             t.position.x = 30;
                             t.position.y = 20;
                             t.position.z = 100;
-                            olafMeshes.push(t);//shaderMaterial);
+                            olafMeshes.push(t);
                             scene.add(t);
                         }
                     });
-                    // obj.rotation.x = Math.PI;
-                    //obj.material = shaderMaterial;
-                    //scene.add(obj);
                 }, onProgress, onError);
 
 
@@ -681,25 +634,10 @@
                 controls.add(parameters, 'cameraTargetY', -200, 200).onChange(onParametersUpdate);
                 controls.add(parameters, 'cameraTargetZ', -200, 200).onChange(onParametersUpdate);
 
-
-                //document.addEventListener('mousemove', function (e) {
-                //    var mouseX = e.clientX,
-                //        mouseY = e.clientY,
-                //        width = window.innerWidth,
-                //        halfWidth = width >> 1,
-                //        height = window.innerHeight,
-                //        halfHeight = height >> 1;
-
-                //       cameraX = cameraRadius * (mouseX - halfWidth) / halfWidth;
-                //       cameraY = cameraRadius * (mouseY - halfHeight) / halfHeight;
-                //}, false);
-
                 document.addEventListener('mousewheel', onMouseWheel, false);
                 document.addEventListener('DOMMouseScroll', onMouseWheel, false);
 
                 //set up smoke
-                //scene_setup();
-
                 buffer_texture_setup();
             }
 
@@ -746,8 +684,6 @@
                 for (var i = 0; i < olafMeshes.length; ++i) {
                     if (olafMeshes[i] != undefined) {
                         olafMeshes[i].material = tempMaterial;
-                        //olafMeshes[i].position.x += 10 * Math.sin(delta);
-                        //olafMeshes[i].position.y += 10 * Math.cos(delta);
                         olafMeshes[i].rotation.x += 0.005;
                         olafMeshes[i].rotation.y += 0.005;
                         olafMeshes[i].rotation.z += 0.005;
@@ -762,10 +698,10 @@
 
                 camera.lookAt(cameraTarget);
 
-                //Draw to textureB
+                //Draw to textureB of smoke
                 renderer.render(bufferScene, camera, textureB, true);
 
-                //Swap textureA and B
+                //Swap textureA and B for smoke
                 var t = textureA;
                 textureA = textureB;
                 textureB = t;
@@ -775,8 +711,6 @@
                 //Update time
                 bufferMaterial.uniforms.time.value += 0.01;
 
-
-                //renderer.clear();
                 render();
                 renderer.render(scene, camera);
 
