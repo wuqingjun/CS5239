@@ -794,13 +794,9 @@
 
                 lastTime = Date.now();
 
-                //if (fireworks.length > 3) {
-                //    for(var b = 0; b < firework.length - 3; ++b)
-                //    {
-                //       // scene.remove(fireworks[b]);
-                //    }
-                //    fireworks.splice(0, fireworks.length - 3);
-                //}
+                if (fireworks.length > 30) {
+                    fireworks.splice(0, fireworks.length - 3);
+                }
 
 
                 for (var i = 0; i < fireworks.length; ++i) {
