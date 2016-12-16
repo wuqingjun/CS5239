@@ -14,7 +14,6 @@ Please use FireFox to open the main.html.
 
 There's a control panel in the right corner of the page, you can use it change size of snow, camera position and etc. 
 
-I am still working on adding some more features into the scenary. 
 
 ##### What is copied and what is my contribution to the project
 
@@ -22,6 +21,7 @@ The 3D objects are dowloaded from internet; the noise functions for snow and smo
 
 The original code of melting snowman olaf is based on a WebGL tutorial in Youtube, which original shows a ring with rotating textures, I applied this pattern to Olaf.
 
+The firework is following a regulare Javascript implementation,I changed it to use Shader. 
 
 ##### References
 
