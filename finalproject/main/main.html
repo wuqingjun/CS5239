@@ -427,10 +427,8 @@
             var bufferObject;
             var finalMaterial;
             var quad;
-          //  var fireworkParticleSystem, fireworkUniforms, fireworkGeometry;
-			var particles = 100;
+			var particles = 300;
 			var startTime = Date.now * 1.0;
-		//	var fireworkShaderMaterial;
 			var fireworks = [];
 			var lastTime = startTime;
 
@@ -789,13 +787,21 @@
 
                 var time = Date.now() * 0.005;
 
-                console.log(Date.now());
                 if (Date.now() - lastTime > 100)
                 {
                     fireworks.push( createFirework());
                 }
 
                 lastTime = Date.now();
+
+                //if (fireworks.length > 3) {
+                //    for(var b = 0; b < firework.length - 3; ++b)
+                //    {
+                //       // scene.remove(fireworks[b]);
+                //    }
+                //    fireworks.splice(0, fireworks.length - 3);
+                //}
+
 
                 for (var i = 0; i < fireworks.length; ++i) {
                     var times = fireworks[i].geometry.attributes.time.array;
